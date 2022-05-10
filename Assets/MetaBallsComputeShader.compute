@@ -3,6 +3,8 @@
 struct MetaBall{
     int x;
     int y;
+    int velX;
+    int velY;
     float r;
 };
 

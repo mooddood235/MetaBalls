@@ -226,6 +226,7 @@ MonoBehaviour:
   clearScreenComputeShader: {fileID: 7200000, guid: 3f1694cb49de8b645aced30597f2872f, type: 3}
   surface: 1
   newRadius: 40
-  width: 2560
-  height: 1440
+  minAndMaxVel: {x: -2, y: 2}
+  width: 1920
+  height: 1080
   cursorThickness: 2.29
