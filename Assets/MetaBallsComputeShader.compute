@@ -1,0 +1,27 @@
+#pragma kernel CSMain
+
+struct MetaBall{
+    int x;
+    int y;
+    float r;
+};
+
+RWTexture2D<float4> Result;
+RWStructuredBuffer<MetaBall> metaBalls;
+
+float surface;
+int metaBallCount;
+
+[numthreads(8,8,1)]
+void CSMain (uint3 id : SV_DispatchThreadID)
+{
+    float value = 0;
+
+    for (int i = 0; i < metaBallCount; i++){
+        MetaBall ball = metaBalls[i];
+        value += ball.r / sqrt(pow((int)id.x - ball.x, 2) + pow((int)id.y - ball.y, 2));
+    }
+    if (value >= surface){
+        Result[id.xy] = float4(1, 1, 1, 1);
+    }
+}
