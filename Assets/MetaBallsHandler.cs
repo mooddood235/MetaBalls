@@ -50,10 +50,7 @@ public class MetaBallsHandler : MonoBehaviour
         if (nearestMetaBall != -1 && !transformBalls && Input.GetMouseButton(1)){
             Vector2Int mousePos = GetCursorPos();
             MetaBall nearestBall = metaBalls[nearestMetaBall];
-            metaBalls[nearestMetaBall] = new MetaBall(
-             mousePos.x, mousePos.y,
-             nearestBall.velX, nearestBall.velY,
-             nearestBall.r);
+            metaBalls[nearestMetaBall] = new MetaBall(mousePos, nearestBall.vel, nearestBall.r);
         } 
         if (transformBalls) TransformBalls();
         SetupAndDispatchClearScreenComputeShader();
@@ -83,11 +80,10 @@ public class MetaBallsHandler : MonoBehaviour
         clearScreenComputeShader.Dispatch(0, (int)width / 8, (int)height / 8, 1);
     }
     private void SpawnMetaBall(){
-        Vector2Int mousePos = GetCursorPos();
-        metaBalls.Add(new MetaBall(
-        mousePos.x, mousePos.y,
+        Vector2 randVel = new Vector2(
         Random.Range(minAndMaxVel.x, minAndMaxVel.y),
-        Random.Range(minAndMaxVel.x, minAndMaxVel.y), newRadius));
+        Random.Range(minAndMaxVel.x, minAndMaxVel.y));
+        metaBalls.Add(new MetaBall(GetCursorPos(), randVel, newRadius));
     }
     private void SetNearestMetaBall(){
         Vector2Int mousePos = GetCursorPos();
@@ -96,7 +92,7 @@ public class MetaBallsHandler : MonoBehaviour
 
         for (int i = 0; i < metaBalls.Count; i++){
             MetaBall ball = metaBalls[i];
-            float distance = Vector2.Distance(mousePos, new Vector2(ball.x, ball.y));
+            float distance = Vector2.Distance(mousePos, ball.pos);
             if (distance < nearestDistance && distance <= ball.r / surface){
                 nearestDistance = distance;
                 nearestBall = i;
@@ -116,10 +112,10 @@ public class MetaBallsHandler : MonoBehaviour
     private void SetRandomVelocities(){
         for (int i = 0; i < metaBalls.Count; i++){
             MetaBall metaBall = metaBalls[i];
-            metaBalls[i] = new MetaBall(
-            metaBall.x, metaBall.y,
-            Random.Range(minAndMaxVel.x, minAndMaxVel.y), Random.Range(minAndMaxVel.x, minAndMaxVel.y),
-            metaBall.r);
+            Vector2 randVel = new Vector2(
+            Random.Range(minAndMaxVel.x, minAndMaxVel.y),
+            Random.Range(minAndMaxVel.x, minAndMaxVel.y));
+            metaBalls[i] = new MetaBall(metaBall.pos, randVel, metaBall.r);
         }
     }
 
@@ -127,16 +123,15 @@ public class MetaBallsHandler : MonoBehaviour
         for (int i = 0; i < metaBalls.Count; i++){
             MetaBall metaBall = metaBalls[i];
 
-            if (metaBall.x - metaBall.r <= 0 || metaBall.x + metaBall.r >= width){
-                metaBall.velX *= -1;
+            if (metaBall.pos.x - metaBall.r <= 0 || metaBall.pos.x + metaBall.r >= width){
+                metaBall.vel.x *= -1;
             }
-            if (metaBall.y - metaBall.r <= 0 || metaBall.y + metaBall.r >= height){
-                metaBall.velY *= -1;
+            if (metaBall.pos.y - metaBall.r <= 0 || metaBall.pos.y + metaBall.r >= height){
+                metaBall.vel.y *= -1;
             }
-            metaBall.x += metaBall.velX * Time.deltaTime;
-            metaBall.y += metaBall.velY * Time.deltaTime;
+            metaBall.pos += metaBall.vel * Time.deltaTime;
 
-            metaBalls[i] = new MetaBall(metaBall.x, metaBall.y, metaBall.velX, metaBall.velY, metaBall.r);
+            metaBalls[i] = new MetaBall(metaBall.pos, metaBall.vel, metaBall.r);
         }
     }
     
@@ -146,17 +141,13 @@ public class MetaBallsHandler : MonoBehaviour
 }
 
 struct MetaBall{
-    public float x;
-    public float y;
-    public float velX;
-    public float velY;
+    public Vector2 pos;
+    public Vector2 vel;
     public float r;
 
-    public MetaBall(float x, float y, float velX, float velY, float r){
-        this.x = x;
-        this.y = y;
-        this.velX = velX;
-        this.velY = velY;
+    public MetaBall(Vector2 pos, Vector2 vel, float r){
+        this.pos = pos;
+        this.vel = vel;
         this.r = r;
     }
 }

@@ -1,10 +1,8 @@
 #pragma kernel CSMain
 
 struct MetaBall{
-    float x;
-    float y;
-    float velX;
-    float velY;
+    float2 pos;
+    float2 vel;
     float r;
 };
 
@@ -21,7 +19,7 @@ void CSMain (uint3 id : SV_DispatchThreadID)
 
     for (int i = 0; i < metaBallCount; i++){
         MetaBall ball = metaBalls[i];
-        value += ball.r / sqrt(pow((int)id.x - ball.x, 2) + pow((int)id.y - ball.y, 2));
+        value += ball.r / sqrt(pow((int)id.x - ball.pos.x, 2) + pow((int)id.y - ball.pos.y, 2));
     }
     if (value >= surface){
         Result[id.xy] = float4(1, 1, 1, 1);
