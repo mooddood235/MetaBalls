@@ -1,10 +1,10 @@
 #pragma kernel CSMain
 
 struct MetaBall{
-    int x;
-    int y;
-    int velX;
-    int velY;
+    float x;
+    float y;
+    float velX;
+    float velY;
     float r;
 };
 

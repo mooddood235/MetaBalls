@@ -15,7 +15,7 @@ public class MetaBallsHandler : MonoBehaviour
     [Range(0f, 10f), SerializeField] private float surface;
     [SerializeField] private float newRadius;
     
-    [SerializeField] private Vector2Int minAndMaxVel;
+    [SerializeField] private Vector2 minAndMaxVel;
 
     private bool transformBalls = false;
 
@@ -64,7 +64,7 @@ public class MetaBallsHandler : MonoBehaviour
         metaBallsComputeShader.SetFloat("surface", surface);
 
         metaBallsComputeShader.SetInt("metaBallCount", metaBalls.Count);        
-        ComputeBuffer metaBallsCB = new ComputeBuffer(metaBalls.Count, 4 * sizeof(int) + sizeof(float));
+        ComputeBuffer metaBallsCB = new ComputeBuffer(metaBalls.Count, 5 * sizeof(float));
         metaBallsCB.SetData(metaBalls);
         metaBallsComputeShader.SetBuffer(0, "metaBalls", metaBallsCB);
         
@@ -96,7 +96,7 @@ public class MetaBallsHandler : MonoBehaviour
 
         for (int i = 0; i < metaBalls.Count; i++){
             MetaBall ball = metaBalls[i];
-            float distance = Vector2Int.Distance(mousePos, new Vector2Int(ball.x, ball.y));
+            float distance = Vector2.Distance(mousePos, new Vector2(ball.x, ball.y));
             if (distance < nearestDistance && distance <= ball.r / surface){
                 nearestDistance = distance;
                 nearestBall = i;
@@ -133,8 +133,8 @@ public class MetaBallsHandler : MonoBehaviour
             if (metaBall.y - metaBall.r <= 0 || metaBall.y + metaBall.r >= height){
                 metaBall.velY *= -1;
             }
-            metaBall.x += metaBall.velX;
-            metaBall.y += metaBall.velY;
+            metaBall.x += metaBall.velX * Time.deltaTime;
+            metaBall.y += metaBall.velY * Time.deltaTime;
 
             metaBalls[i] = new MetaBall(metaBall.x, metaBall.y, metaBall.velX, metaBall.velY, metaBall.r);
         }
@@ -146,15 +146,13 @@ public class MetaBallsHandler : MonoBehaviour
 }
 
 struct MetaBall{
-    public int x;
-    public int y;
-
-    public int velX;
-    public int velY;
-
+    public float x;
+    public float y;
+    public float velX;
+    public float velY;
     public float r;
 
-    public MetaBall(int x, int y, int velX, int velY, float r){
+    public MetaBall(float x, float y, float velX, float velY, float r){
         this.x = x;
         this.y = y;
         this.velX = velX;
