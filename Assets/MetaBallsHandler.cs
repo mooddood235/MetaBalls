@@ -2,10 +2,17 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
+using UnityEngine.EventSystems;
+using TMPro;
+
 
 public class MetaBallsHandler : MonoBehaviour
 {
     [SerializeField] private RenderTexture renderTexture;
+    [SerializeField] private GameObject UIPanel;
+    [SerializeField] private RawImage rawImage;
+    [SerializeField] private TMP_Text pauseButtonText;
+    [SerializeField] private TMP_InputField radiusInput;
     [SerializeField] private ComputeShader metaBallsComputeShader;
     [SerializeField] private ComputeShader cursorComputeShader;
     [SerializeField] private ComputeShader clearScreenComputeShader;
@@ -32,17 +39,23 @@ public class MetaBallsHandler : MonoBehaviour
         renderTexture.enableRandomWrite = true;
     }
     private void Start() {
+        radiusInput.text = newRadius.ToString();
+        rawImage.texture = renderTexture;
         metaBallsComputeShader.SetTexture(0, "Result", renderTexture);
         cursorComputeShader.SetTexture(0, "Result", renderTexture);
         clearScreenComputeShader.SetTexture(0, "Result", renderTexture);
-        Cursor.visible = false;
     }
     private void Update() {
-        SetNewRadius();
+        if (Input.GetKeyDown(KeyCode.Escape)) Application.Quit();
+        if (Input.GetKeyDown(KeyCode.I)) UIPanel.SetActive(!UIPanel.activeSelf);
+        bool takeMouseInput = TakeMouseInput();
+        ShowCursor(!takeMouseInput);
+        SetRadiusScrollDelta();
         SetNearestMetaBall();
         if (Input.GetKeyDown(KeyCode.R)) SetRandomVelocities();
-        if (Input.GetKeyDown(KeyCode.Space)) transformBalls = !transformBalls;
-        if (Input.GetMouseButtonDown(0)) SpawnMetaBall();
+        if (Input.GetKeyDown(KeyCode.Space)) PauseUnpauseSim();
+    
+        if (Input.GetMouseButtonDown(0) && takeMouseInput) SpawnMetaBall();
         if (nearestMetaBall != -1 && Input.GetMouseButtonDown(2)){
             metaBalls.RemoveAt(nearestMetaBall);
             nearestMetaBall = -1;
@@ -105,11 +118,19 @@ public class MetaBallsHandler : MonoBehaviour
         int y = Mathf.RoundToInt(((float)height / Screen.height) * Input.mousePosition.y); 
         return new Vector2Int(x, y);
     }
-    private void SetNewRadius(){
+    private void SetRadiusScrollDelta(){
         newRadius += Input.mouseScrollDelta.y;
+        if (Input.mouseScrollDelta.y != 0)
+            radiusInput.text = newRadius.ToString();
     }
-
-    private void SetRandomVelocities(){
+    public void SetRadiusInput(){
+        string text = radiusInput.text;
+        float flt;
+        if(float.TryParse(text, out flt)){
+            newRadius = flt;
+        }
+    }
+    public void SetRandomVelocities(){
         for (int i = 0; i < metaBalls.Count; i++){
             MetaBall metaBall = metaBalls[i];
             Vector2 randVel = new Vector2(
@@ -134,9 +155,29 @@ public class MetaBallsHandler : MonoBehaviour
             metaBalls[i] = new MetaBall(metaBall.pos, metaBall.vel, metaBall.r);
         }
     }
-    
-    private void OnRenderImage(RenderTexture src, RenderTexture dest) {
-        Graphics.Blit(renderTexture, dest);
+    public void Clear(){
+        metaBalls.Clear();
+    }
+    private bool TakeMouseInput(){
+        PointerEventData pointerEventData = new PointerEventData(EventSystem.current);
+        pointerEventData.position = Input.mousePosition;
+        List<RaycastResult> rayCastResults = new List<RaycastResult>();
+        EventSystem.current.RaycastAll(pointerEventData, rayCastResults);
+
+        foreach (RaycastResult rayCastResult in rayCastResults){
+            if (rayCastResult.gameObject.CompareTag("UI")){
+                return false;
+            }
+        }
+        return true;
+    }
+    private void ShowCursor(bool state){
+        Cursor.visible = state;
+    }
+    public void PauseUnpauseSim(){
+        transformBalls = !transformBalls;
+        if (pauseButtonText.text == "Pause") pauseButtonText.text = "Unpause";
+        else pauseButtonText.text = "Pause";
     }
 }
 
