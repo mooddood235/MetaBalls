@@ -21,7 +21,7 @@ public class MetaBallsHandler : MonoBehaviour
 
     [Range(0f, 10f), SerializeField] private float surface;
     [SerializeField] private float newRadius;
-    [SerializeField] private Vector3 color;
+    [SerializeField] private Vector3 color = new Vector3(1, 1, 1);
     
     [SerializeField] private Vector2 minAndMaxVel;
 
@@ -45,6 +45,7 @@ public class MetaBallsHandler : MonoBehaviour
         metaBallsComputeShader.SetTexture(0, "Result", renderTexture);
         cursorComputeShader.SetTexture(0, "Result", renderTexture);
         clearScreenComputeShader.SetTexture(0, "Result", renderTexture);
+        color = new Vector3(1, 1, 1);
     }
     private void Update() {
         if (Input.GetKeyDown(KeyCode.Escape)) Application.Quit();
@@ -64,7 +65,7 @@ public class MetaBallsHandler : MonoBehaviour
         if (nearestMetaBall != -1 && !transformBalls && Input.GetMouseButton(1)){
             Vector2Int mousePos = GetCursorPos();
             MetaBall nearestBall = metaBalls[nearestMetaBall];
-            metaBalls[nearestMetaBall] = new MetaBall(mousePos, nearestBall.vel, nearestBall.r);
+            metaBalls[nearestMetaBall] = new MetaBall(mousePos, nearestBall.vel, nearestBall.r, nearestBall.color);
         } 
         if (transformBalls) TransformBalls();
         SetupAndDispatchClearScreenComputeShader();
@@ -75,7 +76,7 @@ public class MetaBallsHandler : MonoBehaviour
         metaBallsComputeShader.SetFloat("surface", surface);
 
         metaBallsComputeShader.SetInt("metaBallCount", metaBalls.Count);        
-        ComputeBuffer metaBallsCB = new ComputeBuffer(metaBalls.Count, 5 * sizeof(float));
+        ComputeBuffer metaBallsCB = new ComputeBuffer(metaBalls.Count, 8 * sizeof(float));
         metaBallsCB.SetData(metaBalls);
         metaBallsComputeShader.SetBuffer(0, "metaBalls", metaBallsCB);
         
@@ -97,7 +98,7 @@ public class MetaBallsHandler : MonoBehaviour
         Vector2 randVel = new Vector2(
         Random.Range(minAndMaxVel.x, minAndMaxVel.y),
         Random.Range(minAndMaxVel.x, minAndMaxVel.y));
-        metaBalls.Add(new MetaBall(GetCursorPos(), randVel, newRadius));
+        metaBalls.Add(new MetaBall(GetCursorPos(), randVel, newRadius, color));
     }
     private void SetNearestMetaBall(){
         Vector2Int mousePos = GetCursorPos();
@@ -137,7 +138,7 @@ public class MetaBallsHandler : MonoBehaviour
             Vector2 randVel = new Vector2(
             Random.Range(minAndMaxVel.x, minAndMaxVel.y),
             Random.Range(minAndMaxVel.x, minAndMaxVel.y));
-            metaBalls[i] = new MetaBall(metaBall.pos, randVel, metaBall.r);
+            metaBalls[i] = new MetaBall(metaBall.pos, randVel, metaBall.r, metaBall.color);
         }
     }
 
@@ -153,7 +154,7 @@ public class MetaBallsHandler : MonoBehaviour
             }
             metaBall.pos += metaBall.vel * Time.deltaTime;
 
-            metaBalls[i] = new MetaBall(metaBall.pos, metaBall.vel, metaBall.r);
+            metaBalls[i] = new MetaBall(metaBall.pos, metaBall.vel, metaBall.r, metaBall.color);
         }
     }
     public void Clear(){
@@ -186,10 +187,12 @@ struct MetaBall{
     public Vector2 pos;
     public Vector2 vel;
     public float r;
+    public Vector3 color;
 
-    public MetaBall(Vector2 pos, Vector2 vel, float r){
+    public MetaBall(Vector2 pos, Vector2 vel, float r, Vector3 color){
         this.pos = pos;
         this.vel = vel;
         this.r = r;
+        this.color = color;
     }
 }
