@@ -43,6 +43,7 @@ public class MetaBallsHandler : MonoBehaviour
         renderTexture.enableRandomWrite = true;
     }
     private void Start() {
+        nearestMetaBall = -1;
         radiusInput.text = newRadius.ToString();
         rawImage.texture = renderTexture;
         metaBallsComputeShader.SetTexture(0, "Result", renderTexture);
@@ -56,7 +57,7 @@ public class MetaBallsHandler : MonoBehaviour
         bool takeMouseInput = TakeMouseInput();
         ShowCursor(!takeMouseInput);
         SetRadiusScrollDelta();
-        SetNearestMetaBall();
+        if (!Input.GetMouseButton(1)) SetNearestMetaBall();
         if (Input.GetKeyDown(KeyCode.R)) SetRandomVelocities();
         if (Input.GetKeyDown(KeyCode.Space)) PauseUnpauseSim();
     
@@ -163,6 +164,7 @@ public class MetaBallsHandler : MonoBehaviour
     }
     public void Clear(){
         metaBalls.Clear();
+        nearestMetaBall = -1;
     }
     private bool TakeMouseInput(){
         PointerEventData pointerEventData = new PointerEventData(EventSystem.current);
