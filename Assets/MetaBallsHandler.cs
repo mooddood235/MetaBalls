@@ -21,6 +21,7 @@ public class MetaBallsHandler : MonoBehaviour
 
     [Range(0f, 10f), SerializeField] private float surface;
     [SerializeField] private float newRadius;
+    [SerializeField] private Vector3 color;
     
     [SerializeField] private Vector2 minAndMaxVel;
 
