@@ -13,6 +13,8 @@ public class MetaBallsHandler : MonoBehaviour
     [SerializeField] private RawImage rawImage;
     [SerializeField] private TMP_Text pauseButtonText;
     [SerializeField] private TMP_InputField radiusInput;
+    [SerializeField] private TMP_Text colorModeButtonText;
+    [SerializeField] private FlexibleColorPicker colorPicker;
     [SerializeField] private ComputeShader metaBallsComputeShader;
     [SerializeField] private ComputeShader cursorComputeShader;
     [SerializeField] private ComputeShader clearScreenComputeShader;
@@ -22,6 +24,7 @@ public class MetaBallsHandler : MonoBehaviour
     [Range(0f, 10f), SerializeField] private float surface;
     [SerializeField] private float newRadius;
     [SerializeField] private Vector3 color = new Vector3(1, 1, 1);
+    [SerializeField] private bool linearMode = false;
     
     [SerializeField] private Vector2 minAndMaxVel;
 
@@ -73,6 +76,7 @@ public class MetaBallsHandler : MonoBehaviour
         if (!Input.GetMouseButton(1))SetupAndDispatchCursorComputeShader();
     }
     private void SetupAndDispatchMetaBallsComputeShader(){
+        metaBallsComputeShader.SetBool("linearMode", linearMode);
         metaBallsComputeShader.SetFloat("surface", surface);
 
         metaBallsComputeShader.SetInt("metaBallCount", metaBalls.Count);        
@@ -180,6 +184,14 @@ public class MetaBallsHandler : MonoBehaviour
         transformBalls = !transformBalls;
         if (pauseButtonText.text == "Pause") pauseButtonText.text = "Unpause";
         else pauseButtonText.text = "Pause";
+    }
+    public void SetColor(){
+        color = new Vector3(colorPicker.color.r, colorPicker.color.g, colorPicker.color.b);
+    }
+    public void SetColorMode(){
+        linearMode = !linearMode;
+        if (colorModeButtonText.text == "Inverse") colorModeButtonText.text = "Linear";
+        else colorModeButtonText.text = "Inverse";
     }
 }
 

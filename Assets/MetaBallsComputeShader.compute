@@ -13,6 +13,8 @@ RWStructuredBuffer<MetaBall> metaBalls;
 float surface;
 int metaBallCount;
 
+bool linearMode;
+
 [numthreads(8,8,1)]
 void CSMain (uint3 id : SV_DispatchThreadID)
 {
@@ -23,7 +25,15 @@ void CSMain (uint3 id : SV_DispatchThreadID)
         MetaBall ball = metaBalls[i];
         float value = ball.r / sqrt(pow((int)id.x - ball.pos.x, 2) + pow((int)id.y - ball.pos.y, 2));
         total_value += value;
-        total_color += float4(ball.color.x * value, ball.color.y * value, ball.color.z * value, 0);
+        float colorX = ball.color.x * value;
+        float colorY = ball.color.y * value;
+        float colorZ = ball.color.z * value;
+        if (linearMode){
+            colorX = clamp(colorX, 0, ball.color.x);
+            colorY = clamp(colorY, 0, ball.color.y);
+            colorZ = clamp(colorZ, 0, ball.color.z);
+        }
+        total_color += float4(colorX, colorY, colorZ, 0);      
     }
     if (total_value >= surface){
         Result[id.xy] = total_color;
