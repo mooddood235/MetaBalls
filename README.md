@@ -1,6 +1,17 @@
 # MetaBalls
 A 2D [metaball](https://en.wikipedia.org/wiki/Metaballs) simulation utilizing compute shaders.
 
+# Controls
+Left click -> spawn metaball
+
+Middle click -> delete metaball
+
+Hold right click -> drag metaball
+
+Scroll -> change metaball radius when spawned
+
+Spacebar -> pause/unpause simulation
+
 # Build Instructions
 1. Open the project in Unity version 2021.3.1, or another compatible version.
 2. Build the project through Unity.
