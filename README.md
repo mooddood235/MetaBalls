@@ -17,7 +17,7 @@ Spacebar -> pause/unpause simulation
 2. Build the project through Unity.
 
 # Executable
-The executable can be found under [releases](https://github.com/mooddood235/MetaBalls/releases/tag/1.0)
+The executable can be found under [releases](https://github.com/mooddood235/MetaBalls/releases/tag/1.0).
 
 # Gallery
 ![Capture3](https://github.com/mooddood235/MetaBalls/assets/62807754/b537e09d-5415-4edf-98ff-5cdc92031b7b)
